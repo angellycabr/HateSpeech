@@ -50,6 +50,26 @@ def plot_top_ngrams(sarcasm_freqs_norm, hate_freqs_norm, top_n, title='Top N-gra
     plt.tight_layout()
     plt.show()
 
+def plot_top_n(sarcasm_freqs_norm, hate_freqs_norm, n_values):
+  jaccard_scores = []
+  sarcasm_sorted = sarcasm_freqs_norm.sort_values(ascending=False)
+  hate_sorted = hate_freqs_norm.sort_values(ascending=False)
+
+  for n in n_values:
+      top_sarcasm = set(sarcasm_sorted.head(n).index)
+      top_hate = set(hate_sorted.head(n).index)
+      jaccard = len(top_sarcasm & top_hate) / len(top_sarcasm | top_hate)
+      jaccard_scores.append(jaccard)
+
+  plt.figure(figsize=(8, 5))
+  plt.plot(n_values, jaccard_scores, marker='o')
+  plt.title("Jaccard Similarity vs. Top-N N-grams")
+  plt.xlabel("Top-N Value")
+  plt.ylabel("Jaccard Similarity")
+  plt.grid(True)
+  plt.tight_layout()
+  plt.show()
+
 def bootstrap_jaccard(sarcasm_samples, hate_samples, top_n=100, n_iterations=200, sample_size=100):
   # Find the average similarity score from n iterations with 100 samples each
     jaccard_scores = []
@@ -92,3 +112,6 @@ print(f"Jaccard Similarity (Top 200): {jaccard:.3f}")
 
 plot_top_ngrams(sarcasm_norm, hate_norm, top_n=10)
 bootstrap_jaccard(sarcasm_samples, corpus_samples, top_n=200, n_iterations=100, sample_size=100)
+
+n_values = list(range(5, 210, 25))
+plot_top_n(sarcasm_norm, hate_norm, n_values)
